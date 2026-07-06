@@ -76,7 +76,7 @@
             border-color: var(--active-blue);
             background: rgba(0, 0, 0, 0.5);
         }
-        .playback-controls, .data-controls {
+        .action-row {
             display: flex;
             gap: 8px;
         }
@@ -109,6 +109,12 @@
             width: 50px;
         }
         .btn.primary:hover { filter: brightness(1.1); }
+        .btn.paste-btn {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--active-blue);
+        }
+        .btn.paste-btn:hover { background: rgba(0, 229, 255, 0.15); }
         .btn.success { 
             background: rgba(0, 230, 118, 0.05);
             border: 1px solid rgba(0, 230, 118, 0.3); 
@@ -274,10 +280,9 @@
         }
         .add-seg-btn:hover { opacity: 0.8; }
 
-        /* スマホ向けレスポンシブ対応 */
         @media (max-width: 768px) {
             body { flex-direction: column; height: 100vh; }
-            #player-container { flex: none; height: 40vh; width: 100%; }
+            #player-container { flex: none; height: 35vh; width: 100%; }
             #sidebar { width: 100%; flex: 1; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
             .sidebar-header { padding: 12px; gap: 8px; }
             .add-input-group input { padding: 10px; font-size: 13px; }
@@ -299,12 +304,16 @@
                 <button class="btn primary" id="add-btn" title="動画を追加"><span class="material-icons">add</span></button>
             </div>
             
-            <div class="data-controls">
-                <button class="btn success" id="export-btn" title="他の端末に送る用に一括コピー"><span class="material-icons">content_copy</span>一括コピー</button>
-                <button class="btn success" id="import-btn" title="コピーしたリストを復元・追加"><span class="material-icons">assignment_returned</span>一括貼り付け</button>
+            <div class="action-row">
+                <button class="btn paste-btn" id="quick-paste-btn" title="クリップボードのURLを読み取って即追加"><span class="material-icons">assignment</span>クリップボードから追加</button>
+            </div>
+            
+            <div class="action-row">
+                <button class="btn success" id="export-btn" title="一括コピー"><span class="material-icons">content_copy</span>一括コピー</button>
+                <button class="btn success" id="import-btn" title="一括貼り付け追加"><span class="material-icons">assignment_returned</span>一括貼り付け</button>
             </div>
 
-            <div class="playback-controls">
+            <div class="action-row">
                 <button class="btn" id="random-btn"><span class="material-icons">shuffle</span>ランダム</button>
                 <button class="btn" id="repeat-btn"><span class="material-icons">repeat</span>リピート: オフ</button>
             </div>
@@ -313,9 +322,7 @@
     </div>
 
     <script>
-        // --- 初期データを完全に空にする ---
         let playlist = JSON.parse(localStorage.getItem('yt_custom_playlist')) || [];
-
         let isRandom = false; 
         let repeatMode = 'off'; 
         let currentVideoIndex = 0;
@@ -323,6 +330,7 @@
         let randomHistory = []; 
         let player;
         let checkInterval;
+        let titleCheckInterval;
         
         const playlistElem = document.getElementById('playlist');
 
@@ -338,10 +346,24 @@
             const firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+            // クリップボードから即時追加
+            document.getElementById('quick-paste-btn').addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.trim()) {
+                        addVideoToList(text.trim());
+                    } else {
+                        alert("クリップボードが空っぽか、テキストがコピーされていません。");
+                    }
+                } catch (err) {
+                    alert("クリップボードの読み取り許可が必要です。ブラウザのポップアップが出たら許可してください。");
+                }
+            });
+
             // 一括コピー
             document.getElementById('export-btn').addEventListener('click', () => {
                 if (playlist.length === 0) {
-                    alert("リストが空っぽです。動画を追加してからコピーしてください。");
+                    alert("リストが空っぽです。");
                     return;
                 }
                 const cleanData = playlist.map(item => ({
@@ -351,7 +373,7 @@
                     segments: item.segments
                 }));
                 navigator.clipboard.writeText(JSON.stringify(cleanData)).then(() => {
-                    alert("リストデータ（URL・全AB地点）を一括コピーしました！LINEやメモ帳に貼り付けて共有・保管できます。");
+                    alert("リストデータ（URL・全AB地点）を一括コピーしました！");
                 }).catch(err => { alert("コピーに失敗しました: " + err); });
             });
 
@@ -368,7 +390,7 @@
                         playlist.push({
                             id: 'uid_' + Date.now() + Math.random().toString(36).substr(2, 5),
                             videoId: item.videoId,
-                            title: item.title || 'インポート動画',
+                            title: item.title || '動画 (' + item.videoId + ')',
                             duration: item.duration || '--:--',
                             segments: item.segments && item.segments.length > 0 ? item.segments : [{ start: 0, end: 30 }]
                         });
@@ -395,7 +417,7 @@
                 <div class="empty-state">
                     <span class="material-icons">video_library</span>
                     <div>プレイリストが空っぽです</div>
-                    <div style="font-size:12px; opacity:0.7;">上の入力欄にYouTubeのURLかIDを入れて動画を追加してください。</div>
+                    <div style="font-size:12px; opacity:0.7;">URLを入力するか「クリップボードから追加」を押してください。</div>
                 </div>
             `;
         }
@@ -495,6 +517,40 @@
 
         function startMonitoring() {
             clearInterval(checkInterval);
+            clearInterval(titleCheckInterval);
+
+            // 再生が開始されたら、タイトルと動画時間を自動回収して更新する処理
+            titleCheckInterval = setInterval(() => {
+                if (player && typeof player.getVideoData === 'function') {
+                    const videoData = player.getVideoData();
+                    const durationSec = player.getDuration();
+                    
+                    if (videoData && videoData.title && playlist[currentVideoIndex]) {
+                        let updated = false;
+                        
+                        // 仮のタイトルだった場合は書き換える
+                        if (playlist[currentVideoIndex].title.startsWith('動画 (') || playlist[currentVideoIndex].title === 'インポート動画') {
+                            playlist[currentVideoIndex].title = videoData.title;
+                            updated = true;
+                        }
+                        
+                        // 再生時間がまだ未取得(--:--)だった場合は時間を綺麗に変換して格納
+                        if (playlist[currentVideoIndex].duration === '--:--' && durationSec > 0) {
+                            const mins = Math.floor(durationSec / 60).toString().padStart(2, '0');
+                            const secs = Math.floor(durationSec % 60).toString().padStart(2, '0');
+                            playlist[currentVideoIndex].duration = `${mins}:${secs}`;
+                            updated = true;
+                        }
+
+                        if (updated) {
+                            saveToStorage();
+                            renderPlaylist();
+                            clearInterval(titleCheckInterval); // 更新完了したらこの動画の監視は終了
+                        }
+                    }
+                }
+            }, 1000);
+
             checkInterval = setInterval(() => {
                 if (!player || typeof player.getCurrentTime !== 'function') return;
                 const currentTime = player.getCurrentTime();
@@ -592,15 +648,17 @@
             if (vIdx === currentVideoIndex) loadPlaylistItem(vIdx, 0); else renderPlaylist();
         }
 
-        document.getElementById('add-btn').addEventListener('click', () => {
-            const input = document.getElementById('video-id-input');
-            let val = input.value.trim();
-            if (!val) return;
-
+        // 動画追加共通ロジック
+        function addVideoToList(val) {
             let videoId = val;
             if (val.includes('v=')) videoId = val.split('v=')[1].split('&')[0];
             else if (val.includes('youtu.be/')) videoId = val.split('youtu.be/')[1].split('?')[0];
             else if (val.includes('embed/')) videoId = val.split('embed/')[1].split('?')[0];
+
+            if (videoId.length !== 11) {
+                alert("有効なYouTubeのURLまたは動画IDではありません。");
+                return;
+            }
 
             const newItem = {
                 id: 'uid_' + Date.now(),
@@ -611,7 +669,6 @@
             };
 
             playlist.unshift(newItem);
-            input.value = '';
             saveToStorage();
             
             if (playlist.length === 1) {
@@ -620,6 +677,14 @@
                 currentVideoIndex++;
                 renderPlaylist();
             }
+        }
+
+        document.getElementById('add-btn').addEventListener('click', () => {
+            const input = document.getElementById('video-id-input');
+            let val = input.value.trim();
+            if (!val) return;
+            addVideoToList(val);
+            input.value = '';
         });
 
         function deleteItem(id, event) {
@@ -634,6 +699,7 @@
 
             if (playlist.length === 0) {
                 clearInterval(checkInterval);
+                clearInterval(titleCheckInterval);
                 if (player) {
                     player.destroy();
                     player = null;
