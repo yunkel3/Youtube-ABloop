@@ -52,28 +52,28 @@
             backdrop-filter: blur(10px);
         }
         .sidebar-header {
-            padding: 20px;
+            padding: 16px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         .action-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            width: 100%;
         }
         .btn {
             background-color: var(--item-bg);
             color: #fff;
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 11px 14px;
+            padding: 10px 0;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
             font-size: 13px;
             flex: 1;
             transition: all 0.2s;
@@ -85,36 +85,40 @@
         }
         .btn:active { transform: translateY(0); }
         
-        .btn.paste-btn {
-            background: linear-gradient(135deg, #00b4d8, #00e5ff);
-            border: none;
-            color: #0d0e12;
-            padding: 13px 14px;
-            font-size: 14px;
+        /* 上段アイコン専用スタイル */
+        .btn.icon-only {
+            padding: 12px 0;
         }
-        .btn.paste-btn:hover { filter: brightness(1.1); }
-        .btn.success { 
-            background: rgba(0, 230, 118, 0.05);
-            border: 1px solid rgba(0, 230, 118, 0.3); 
-            color: var(--btn-green); 
-        }
-        .btn.success:hover { background: rgba(0, 230, 118, 0.15); }
-        .btn.ab-toggle {
-            background: rgba(255, 152, 0, 0.05);
-            border: 1px solid rgba(255, 152, 0, 0.3);
-            color: var(--orange-color);
-        }
+        .btn.paste-btn { color: var(--active-blue); background: rgba(0, 229, 255, 0.03); border-color: rgba(0, 229, 255, 0.2); }
+        .btn.paste-btn:hover { background: rgba(0, 229, 255, 0.12); }
+        
+        .btn.success { color: var(--btn-green); background: rgba(0, 230, 118, 0.03); border-color: rgba(0, 230, 118, 0.2); }
+        .btn.success:hover { background: rgba(0, 230, 118, 0.12); }
+
+        .btn.ab-toggle { color: var(--orange-color); background: rgba(255, 152, 0, 0.03); border-color: rgba(255, 152, 0, 0.2); }
         .btn.ab-toggle.active {
             background: rgba(255, 152, 0, 0.15);
             border-color: var(--orange-color);
-            box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.2);
         }
         .btn.active {
-            background: rgba(0, 229, 255, 0.1);
+            background: rgba(0, 229, 255, 0.13);
             border-color: var(--active-blue);
             color: var(--active-blue);
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
         }
+
+        /* 下段コントロール専用スタイル */
+        .btn.control-btn {
+            background-color: #252836;
+            font-size: 12px;
+        }
+        .btn.control-btn.play-pause {
+            background: linear-gradient(135deg, var(--accent-red), #ff5266);
+            border: none;
+        }
+        .btn.control-btn.play-pause:hover { filter: brightness(1.1); }
+
         #playlist {
             flex: 1;
             overflow-y: auto;
@@ -280,7 +284,7 @@
             #player-container { flex: none; height: 35vh; width: 100%; }
             #sidebar { width: 100%; flex: 1; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
             .sidebar-header { padding: 12px; gap: 8px; }
-            .btn { padding: 8px; font-size: 12px; }
+            .btn { padding: 10px 0; font-size: 12px; }
             #playlist { padding: 10px; }
         }
     </style>
@@ -294,18 +298,20 @@
     <div id="sidebar">
         <div class="sidebar-header">
             <div class="action-row">
-                <button class="btn paste-btn" id="quick-paste-btn" title="クリップボードのURLから動画を追加"><span class="material-icons">assignment</span>クリップボードから追加</button>
+                <button class="btn icon-only paste-btn" id="quick-paste-btn" title="クリップボードから追加"><span class="material-icons">assignment</span></button>
+                <button class="btn icon-only success" id="export-btn" title="一括コピー"><span class="material-icons">content_copy</span></button>
+                <button class="btn icon-only success" id="import-btn" title="一括貼り付け"><span class="material-icons">assignment_returned</span></button>
+                <button class="btn icon-only ab-toggle active" id="ab-toggle-btn" title="ABリピート"><span class="material-icons">hourglass_full</span></button>
+                <button class="btn icon-only" id="random-btn" title="ランダム再生"><span class="material-icons">shuffle</span></button>
+                <button class="btn icon-only" id="repeat-btn" title="リピート設定"><span class="material-icons">repeat</span></button>
             </div>
             
             <div class="action-row">
-                <button class="btn success" id="export-btn" title="一括コピー"><span class="material-icons">content_copy</span>一括コピー</button>
-                <button class="btn success" id="import-btn" title="一括貼り付け追加"><span class="material-icons">assignment_returned</span>一括貼り付け</button>
-            </div>
-
-            <div class="action-row">
-                <button class="btn ab-toggle active" id="ab-toggle-btn"><span class="material-icons">hourglass_full</span>ABリピート: オン</button>
-                <button class="btn" id="random-btn"><span class="material-icons">shuffle</span>ランダム</button>
-                <button class="btn" id="repeat-btn"><span class="material-icons">repeat</span>リピート: オフ</button>
+                <button class="btn control-btn" id="rew-5-btn" title="5秒巻き戻し"><span class="material-icons">replay_5</span></button>
+                <button class="btn control-btn" id="rew-1-btn" title="1秒巻き戻し"><span class="material-icons">navigate_before</span></button>
+                <button class="btn control-btn play-pause" id="play-pause-btn" title="再生 / 一時停止"><span class="material-icons">play_arrow</span></button>
+                <button class="btn control-btn" id="ff-1-btn" title="1秒進む"><span class="material-icons">navigate_next</span></button>
+                <button class="btn control-btn" id="ff-5-btn" title="5秒進む"><span class="material-icons">forward_5</span></button>
             </div>
         </div>
         <ul id="playlist"></ul>
@@ -315,7 +321,7 @@
         let playlist = JSON.parse(localStorage.getItem('yt_custom_playlist')) || [];
         let isRandom = false; 
         let repeatMode = 'off'; 
-        let abRepeatEnabled = true; // 新規: ABリピートのオンオフ状態
+        let abRepeatEnabled = true; 
         let currentVideoIndex = 0;
         let currentSegmentIndex = 0;
         let randomHistory = []; 
@@ -364,7 +370,7 @@
                     segments: item.segments
                 }));
                 navigator.clipboard.writeText(JSON.stringify(cleanData)).then(() => {
-                    alert("リストデータ（URL・全AB地点）を一括コピーしました！");
+                    alert("リストデータを一括コピーしました！");
                 }).catch(err => { alert("コピーに失敗しました: " + err); });
             });
 
@@ -392,7 +398,36 @@
                     if (!player && playlist.length > 0) loadPlaylistItem(0, 0);
                 } catch (e) { alert("解析に失敗しました。"); }
             });
+
+            // 新設：下段コントロールボタンのイベント設定
+            document.getElementById('rew-5-btn').addEventListener('click', () => { seekOffset(-5); });
+            document.getElementById('rew-1-btn').addEventListener('click', () => { seekOffset(-1); });
+            document.getElementById('ff-1-btn').addEventListener('click', () => { seekOffset(1); });
+            document.getElementById('ff-5-btn').addEventListener('click', () => { seekOffset(5); });
+            document.getElementById('play-pause-btn').addEventListener('click', togglePlayPause);
         });
+
+        // タイムシーク共通処理
+        function seekOffset(offset) {
+            if (!player || typeof player.getCurrentTime !== 'function') return;
+            const currentTime = player.getCurrentTime();
+            player.seekTo(Math.max(0, currentTime + offset), true);
+        }
+
+        // 再生・停止切り替え
+        function togglePlayPause() {
+            if (!player || typeof player.getPlayerState !== 'function') return;
+            const state = player.getPlayerState();
+            const btnIcon = document.querySelector('#play-pause-btn .material-icons');
+            
+            if (state === YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+                if(btnIcon) btnIcon.textContent = 'play_arrow';
+            } else {
+                player.playVideo();
+                if(btnIcon) btnIcon.textContent = 'pause';
+            }
+        }
 
         function onYouTubeIframeAPIReady() {
             if (playlist.length > 0) {
@@ -408,7 +443,7 @@
                 <div class="empty-state">
                     <span class="material-icons">video_library</span>
                     <div>プレイリストが空っぽです</div>
-                    <div style="font-size:12px; opacity:0.7;">「クリップボードから追加」を押して動画を登録してください。</div>
+                    <div style="font-size:12px; opacity:0.7;">一番左上のボタンから動画を追加してください。</div>
                 </div>
             `;
         }
@@ -431,7 +466,6 @@
                 let segmentsHtml = '';
                 item.segments.forEach((seg, sIdx) => {
                     const isCurrentSeg = (vIdx === currentVideoIndex && sIdx === currentSegmentIndex && player);
-                    // 行全体をクリックしたときにシークさせる。ただし中のinputや削除ボタンクリック時は発火させないよう対策
                     segmentsHtml += `
                         <div class="segment-row ${isCurrentSeg ? 'playing-seg' : ''}" onclick="clickSegment(${vIdx}, ${sIdx}, event)">
                             <span class="material-icons" style="font-size:13px;">${isCurrentSeg ? 'play_arrow' : 'label'}</span>
@@ -472,14 +506,12 @@
             });
         }
 
-        // 新規：AB地点の行をクリックしたときの挙動
         function clickSegment(vIdx, sIdx, event) {
             event.stopPropagation();
-            // ABリピートがオフでも、クリックした瞬間にそのAB設定を「オン」にしてその範囲を強制再生させる
             if (!abRepeatEnabled) {
                 abRepeatEnabled = true;
                 const abBtn = document.getElementById('ab-toggle-btn');
-                abBtn.innerHTML = '<span class="material-icons">hourglass_full</span>ABリピート: オン';
+                abBtn.innerHTML = '<span class="material-icons">hourglass_full</span>';
                 abBtn.classList.add('active');
             }
             loadPlaylistItem(vIdx, sIdx);
@@ -498,7 +530,6 @@
 
             renderPlaylist();
 
-            // ABリピートがオンなら指定開始秒、オフなら0秒から再生
             const startSec = abRepeatEnabled ? segment.start : 0;
 
             if (!player) {
@@ -506,8 +537,8 @@
                     videoId: item.videoId,
                     playerVars: { 'autoplay': 1, 'controls': 1, 'start': startSec, 'rel': 0 },
                     events: {
-                        'onReady': (e) => { e.target.playVideo(); startMonitoring(); },
-                        'onStateChange': (e) => { if (e.data == YT.PlayerState.PLAYING) startMonitoring(); }
+                        'onReady': (e) => { e.target.playVideo(); updatePlayPauseIcon(); startMonitoring(); },
+                        'onStateChange': (e) => { updatePlayPauseIcon(); if (e.data == YT.PlayerState.PLAYING) startMonitoring(); }
                     }
                 });
             } else {
@@ -515,6 +546,15 @@
                     videoId: item.videoId,
                     startSeconds: startSec
                 });
+            }
+        }
+
+        function updatePlayPauseIcon() {
+            if (!player || typeof player.getPlayerState !== 'function') return;
+            const state = player.getPlayerState();
+            const btnIcon = document.querySelector('#play-pause-btn .material-icons');
+            if(btnIcon) {
+                btnIcon.textContent = (state === YT.PlayerState.PLAYING) ? 'pause' : 'play_arrow';
             }
         }
 
@@ -560,14 +600,12 @@
                 if (!item) return;
 
                 if (abRepeatEnabled) {
-                    // 【ABリピートON時】指定のB地点を越えたら次へ
                     const currentSegment = item.segments[currentSegmentIndex];
                     if (!currentSegment) return;
                     if (currentTime >= currentSegment.end) {
                         determineNextTrack();
                     }
                 } else {
-                    // 【ABリピートOFF時】YouTube本来の動画終了時間を取得し、最後まで行ったら次の動画へ
                     const totalDuration = player.getDuration();
                     if (totalDuration > 0 && currentTime >= totalDuration - 0.5) {
                         if (isRandom) playNextRandom(); else playNextSequential();
@@ -721,23 +759,23 @@
             }
         }
 
-        // 新規：ABリピートの切り替えイベント
+        // ABリピートの切り替え
         const abToggleBtn = document.getElementById('ab-toggle-btn');
         abToggleBtn.addEventListener('click', () => {
             abRepeatEnabled = !abRepeatEnabled;
             if (abRepeatEnabled) {
-                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_full</span>ABリピート: オン';
+                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_full</span>';
                 abToggleBtn.classList.add('active');
-                // オンにした瞬間、その時点のAB範囲に引き戻して再生
                 if (playlist[currentVideoIndex]) {
                     loadPlaylistItem(currentVideoIndex, currentSegmentIndex);
                 }
             } else {
-                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_empty</span>ABリピート: オフ';
+                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_empty</span>';
                 abToggleBtn.classList.remove('active');
             }
         });
 
+        // ランダム
         const randomBtn = document.getElementById('random-btn');
         randomBtn.addEventListener('click', () => {
             isRandom = !isRandom;
@@ -745,20 +783,25 @@
             randomBtn.classList.toggle('active', isRandom);
         });
 
+        // リピート設定
         const repeatBtn = document.getElementById('repeat-btn');
         repeatBtn.addEventListener('click', () => {
+            const icon = repeatBtn.querySelector('.material-icons');
             if (repeatMode === 'off') {
                 repeatMode = 'all';
-                repeatBtn.innerHTML = '<span class="material-icons">repeat</span>リピート: 全体';
+                icon.textContent = 'repeat';
                 repeatBtn.classList.add('active');
+                repeatBtn.setAttribute('title', 'リピート: 全体');
             } else if (repeatMode === 'all') {
                 repeatMode = 'one';
-                repeatBtn.innerHTML = '<span class="material-icons">repeat_one</span>リピート: 単体';
+                icon.textContent = 'repeat_one';
                 repeatBtn.classList.add('active');
+                repeatBtn.setAttribute('title', 'リピート: 単体');
             } else {
                 repeatMode = 'off';
-                repeatBtn.innerHTML = '<span class="material-icons">repeat</span>リピート: オフ';
+                icon.textContent = 'repeat';
                 repeatBtn.classList.remove('active');
+                repeatBtn.setAttribute('title', 'リピート: オフ');
             }
         });
 
