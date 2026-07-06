@@ -16,6 +16,7 @@
             --accent-red: #ff334b;
             --active-blue: #00e5ff;
             --btn-green: #00e676;
+            --orange-color: #ff9800;
         }
         * { box-sizing: border-box; }
         body {
@@ -55,26 +56,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
-            gap: 14px;
-        }
-        .add-input-group {
-            display: flex;
-            gap: 8px;
-        }
-        .add-input-group input {
-            flex: 1;
-            padding: 12px 14px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        .add-input-group input:focus {
-            outline: none;
-            border-color: var(--active-blue);
-            background: rgba(0, 0, 0, 0.5);
+            gap: 12px;
         }
         .action-row {
             display: flex;
@@ -84,7 +66,7 @@
             background-color: var(--item-bg);
             color: #fff;
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 10px 14px;
+            padding: 11px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -102,25 +84,31 @@
             transform: translateY(-1px);
         }
         .btn:active { transform: translateY(0); }
-        .btn.primary { 
-            background: linear-gradient(135deg, var(--accent-red), #ff6b6b); 
-            border: none; 
-            flex: none; 
-            width: 50px;
-        }
-        .btn.primary:hover { filter: brightness(1.1); }
+        
         .btn.paste-btn {
-            background: rgba(0, 229, 255, 0.05);
-            border: 1px solid rgba(0, 229, 255, 0.3);
-            color: var(--active-blue);
+            background: linear-gradient(135deg, #00b4d8, #00e5ff);
+            border: none;
+            color: #0d0e12;
+            padding: 13px 14px;
+            font-size: 14px;
         }
-        .btn.paste-btn:hover { background: rgba(0, 229, 255, 0.15); }
+        .btn.paste-btn:hover { filter: brightness(1.1); }
         .btn.success { 
             background: rgba(0, 230, 118, 0.05);
             border: 1px solid rgba(0, 230, 118, 0.3); 
             color: var(--btn-green); 
         }
         .btn.success:hover { background: rgba(0, 230, 118, 0.15); }
+        .btn.ab-toggle {
+            background: rgba(255, 152, 0, 0.05);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            color: var(--orange-color);
+        }
+        .btn.ab-toggle.active {
+            background: rgba(255, 152, 0, 0.15);
+            border-color: var(--orange-color);
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
+        }
         .btn.active {
             background: rgba(0, 229, 255, 0.1);
             border-color: var(--active-blue);
@@ -223,13 +211,19 @@
         .segment-row {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 4px;
+            font-size: 11px;
             color: var(--text-muted);
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.25);
             padding: 4px 8px;
             border-radius: 6px;
             border: 1px solid rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .segment-row:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
         }
         .segment-row.playing-seg {
             background: rgba(0, 229, 255, 0.08);
@@ -237,14 +231,15 @@
             border-color: rgba(0, 229, 255, 0.2);
         }
         .segment-row input {
-            width: 48px;
-            background: rgba(0,0,0,0.4);
+            width: 45px;
+            background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
             text-align: center;
             border-radius: 4px;
             padding: 2px;
             font-size: 11px;
+            cursor: text;
         }
         .segment-row input:focus { outline: none; border-color: var(--active-blue); }
         .icon-btn {
@@ -262,7 +257,7 @@
         .icon-btn.delete { position: absolute; top: 10px; right: 10px; }
         .icon-btn.delete:hover { color: var(--accent-red); background: rgba(255, 51, 75, 0.1); }
         
-        .segment-row .icon-btn.delete-seg { position: static; }
+        .segment-row .icon-btn.delete-seg { position: static; padding: 2px; }
         .segment-row .icon-btn.delete-seg:hover { color: var(--accent-red); background: none; }
 
         .add-seg-btn {
@@ -285,7 +280,6 @@
             #player-container { flex: none; height: 35vh; width: 100%; }
             #sidebar { width: 100%; flex: 1; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
             .sidebar-header { padding: 12px; gap: 8px; }
-            .add-input-group input { padding: 10px; font-size: 13px; }
             .btn { padding: 8px; font-size: 12px; }
             #playlist { padding: 10px; }
         }
@@ -299,13 +293,8 @@
 
     <div id="sidebar">
         <div class="sidebar-header">
-            <div class="add-input-group">
-                <input type="text" id="video-id-input" placeholder="YouTube動画のURL または IDを入力">
-                <button class="btn primary" id="add-btn" title="動画を追加"><span class="material-icons">add</span></button>
-            </div>
-            
             <div class="action-row">
-                <button class="btn paste-btn" id="quick-paste-btn" title="クリップボードのURLを読み取って即追加"><span class="material-icons">assignment</span>クリップボードから追加</button>
+                <button class="btn paste-btn" id="quick-paste-btn" title="クリップボードのURLから動画を追加"><span class="material-icons">assignment</span>クリップボードから追加</button>
             </div>
             
             <div class="action-row">
@@ -314,6 +303,7 @@
             </div>
 
             <div class="action-row">
+                <button class="btn ab-toggle active" id="ab-toggle-btn"><span class="material-icons">hourglass_full</span>ABリピート: オン</button>
                 <button class="btn" id="random-btn"><span class="material-icons">shuffle</span>ランダム</button>
                 <button class="btn" id="repeat-btn"><span class="material-icons">repeat</span>リピート: オフ</button>
             </div>
@@ -325,6 +315,7 @@
         let playlist = JSON.parse(localStorage.getItem('yt_custom_playlist')) || [];
         let isRandom = false; 
         let repeatMode = 'off'; 
+        let abRepeatEnabled = true; // 新規: ABリピートのオンオフ状態
         let currentVideoIndex = 0;
         let currentSegmentIndex = 0;
         let randomHistory = []; 
@@ -356,7 +347,7 @@
                         alert("クリップボードが空っぽか、テキストがコピーされていません。");
                     }
                 } catch (err) {
-                    alert("クリップボードの読み取り許可が必要です。ブラウザのポップアップが出たら許可してください。");
+                    alert("クリップボードの読み取り許可が必要です。");
                 }
             });
 
@@ -399,7 +390,7 @@
                     renderPlaylist();
                     alert(`${parsedData.length}個の動画データを追加しました！`);
                     if (!player && playlist.length > 0) loadPlaylistItem(0, 0);
-                } catch (e) { alert("解析に失敗しました。正しいテキストか確認してください。"); }
+                } catch (e) { alert("解析に失敗しました。"); }
             });
         });
 
@@ -417,7 +408,7 @@
                 <div class="empty-state">
                     <span class="material-icons">video_library</span>
                     <div>プレイリストが空っぽです</div>
-                    <div style="font-size:12px; opacity:0.7;">URLを入力するか「クリップボードから追加」を押してください。</div>
+                    <div style="font-size:12px; opacity:0.7;">「クリップボードから追加」を押して動画を登録してください。</div>
                 </div>
             `;
         }
@@ -440,16 +431,17 @@
                 let segmentsHtml = '';
                 item.segments.forEach((seg, sIdx) => {
                     const isCurrentSeg = (vIdx === currentVideoIndex && sIdx === currentSegmentIndex && player);
+                    // 行全体をクリックしたときにシークさせる。ただし中のinputや削除ボタンクリック時は発火させないよう対策
                     segmentsHtml += `
-                        <div class="segment-row ${isCurrentSeg ? 'playing-seg' : ''}">
-                            <span class="material-icons" style="font-size:14px;">${isCurrentSeg ? 'play_arrow' : 'label'}</span>
+                        <div class="segment-row ${isCurrentSeg ? 'playing-seg' : ''}" onclick="clickSegment(${vIdx}, ${sIdx}, event)">
+                            <span class="material-icons" style="font-size:13px;">${isCurrentSeg ? 'play_arrow' : 'label'}</span>
                             <span>A:</span>
-                            <input type="number" value="${seg.start}" min="0" onchange="updateSegment(${vIdx}, ${sIdx}, 'start', this.value)">
+                            <input type="number" value="${seg.start}" min="0" onchange="updateSegment(${vIdx}, ${sIdx}, 'start', this.value)" onclick="event.stopPropagation()">
                             <span>秒 〜 B:</span>
-                            <input type="number" value="${seg.end}" min="0" onchange="updateSegment(${vIdx}, ${sIdx}, 'end', this.value)">
+                            <input type="number" value="${seg.end}" min="0" onchange="updateSegment(${vIdx}, ${sIdx}, 'end', this.value)" onclick="event.stopPropagation()">
                             <span>秒</span>
                             <button class="icon-btn delete-seg" onclick="deleteSegment(${vIdx}, ${sIdx}, event)" title="削除">
-                                <span class="material-icons" style="font-size:14px;">remove_circle_outline</span>
+                                <span class="material-icons" style="font-size:13px;">remove_circle_outline</span>
                             </button>
                         </div>
                     `;
@@ -480,6 +472,19 @@
             });
         }
 
+        // 新規：AB地点の行をクリックしたときの挙動
+        function clickSegment(vIdx, sIdx, event) {
+            event.stopPropagation();
+            // ABリピートがオフでも、クリックした瞬間にそのAB設定を「オン」にしてその範囲を強制再生させる
+            if (!abRepeatEnabled) {
+                abRepeatEnabled = true;
+                const abBtn = document.getElementById('ab-toggle-btn');
+                abBtn.innerHTML = '<span class="material-icons">hourglass_full</span>ABリピート: オン';
+                abBtn.classList.add('active');
+            }
+            loadPlaylistItem(vIdx, sIdx);
+        }
+
         function loadPlaylistItem(vIdx, sIdx) {
             if (vIdx < 0 || vIdx >= playlist.length) return;
             currentVideoIndex = vIdx;
@@ -493,10 +498,13 @@
 
             renderPlaylist();
 
+            // ABリピートがオンなら指定開始秒、オフなら0秒から再生
+            const startSec = abRepeatEnabled ? segment.start : 0;
+
             if (!player) {
                 player = new YT.Player('player', {
                     videoId: item.videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': segment.start, 'rel': 0 },
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startSec, 'rel': 0 },
                     events: {
                         'onReady': (e) => { e.target.playVideo(); startMonitoring(); },
                         'onStateChange': (e) => { if (e.data == YT.PlayerState.PLAYING) startMonitoring(); }
@@ -505,7 +513,7 @@
             } else {
                 player.loadVideoById({
                     videoId: item.videoId,
-                    startSeconds: segment.start
+                    startSeconds: startSec
                 });
             }
         }
@@ -519,7 +527,6 @@
             clearInterval(checkInterval);
             clearInterval(titleCheckInterval);
 
-            // 再生が開始されたら、タイトルと動画時間を自動回収して更新する処理
             titleCheckInterval = setInterval(() => {
                 if (player && typeof player.getVideoData === 'function') {
                     const videoData = player.getVideoData();
@@ -527,25 +534,20 @@
                     
                     if (videoData && videoData.title && playlist[currentVideoIndex]) {
                         let updated = false;
-                        
-                        // 仮のタイトルだった場合は書き換える
                         if (playlist[currentVideoIndex].title.startsWith('動画 (') || playlist[currentVideoIndex].title === 'インポート動画') {
                             playlist[currentVideoIndex].title = videoData.title;
                             updated = true;
                         }
-                        
-                        // 再生時間がまだ未取得(--:--)だった場合は時間を綺麗に変換して格納
                         if (playlist[currentVideoIndex].duration === '--:--' && durationSec > 0) {
                             const mins = Math.floor(durationSec / 60).toString().padStart(2, '0');
                             const secs = Math.floor(durationSec % 60).toString().padStart(2, '0');
                             playlist[currentVideoIndex].duration = `${mins}:${secs}`;
                             updated = true;
                         }
-
                         if (updated) {
                             saveToStorage();
                             renderPlaylist();
-                            clearInterval(titleCheckInterval); // 更新完了したらこの動画の監視は終了
+                            clearInterval(titleCheckInterval);
                         }
                     }
                 }
@@ -556,11 +558,20 @@
                 const currentTime = player.getCurrentTime();
                 const item = playlist[currentVideoIndex];
                 if (!item) return;
-                const currentSegment = item.segments[currentSegmentIndex];
-                if (!currentSegment) return;
 
-                if (currentTime >= currentSegment.end) {
-                    determineNextTrack();
+                if (abRepeatEnabled) {
+                    // 【ABリピートON時】指定のB地点を越えたら次へ
+                    const currentSegment = item.segments[currentSegmentIndex];
+                    if (!currentSegment) return;
+                    if (currentTime >= currentSegment.end) {
+                        determineNextTrack();
+                    }
+                } else {
+                    // 【ABリピートOFF時】YouTube本来の動画終了時間を取得し、最後まで行ったら次の動画へ
+                    const totalDuration = player.getDuration();
+                    if (totalDuration > 0 && currentTime >= totalDuration - 0.5) {
+                        if (isRandom) playNextRandom(); else playNextSequential();
+                    }
                 }
             }, 200);
         }
@@ -622,7 +633,7 @@
             const numValue = parseInt(value, 10) || 0;
             playlist[vIdx].segments[sIdx][type] = numValue;
             saveToStorage();
-            if (vIdx === currentVideoIndex && sIdx === currentSegmentIndex && type === 'start' && player) {
+            if (abRepeatEnabled && vIdx === currentVideoIndex && sIdx === currentSegmentIndex && type === 'start' && player) {
                 player.seekTo(numValue, true);
             }
         }
@@ -648,7 +659,6 @@
             if (vIdx === currentVideoIndex) loadPlaylistItem(vIdx, 0); else renderPlaylist();
         }
 
-        // 動画追加共通ロジック
         function addVideoToList(val) {
             let videoId = val;
             if (val.includes('v=')) videoId = val.split('v=')[1].split('&')[0];
@@ -678,14 +688,6 @@
                 renderPlaylist();
             }
         }
-
-        document.getElementById('add-btn').addEventListener('click', () => {
-            const input = document.getElementById('video-id-input');
-            let val = input.value.trim();
-            if (!val) return;
-            addVideoToList(val);
-            input.value = '';
-        });
 
         function deleteItem(id, event) {
             event.stopPropagation();
@@ -718,6 +720,23 @@
                 }
             }
         }
+
+        // 新規：ABリピートの切り替えイベント
+        const abToggleBtn = document.getElementById('ab-toggle-btn');
+        abToggleBtn.addEventListener('click', () => {
+            abRepeatEnabled = !abRepeatEnabled;
+            if (abRepeatEnabled) {
+                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_full</span>ABリピート: オン';
+                abToggleBtn.classList.add('active');
+                // オンにした瞬間、その時点のAB範囲に引き戻して再生
+                if (playlist[currentVideoIndex]) {
+                    loadPlaylistItem(currentVideoIndex, currentSegmentIndex);
+                }
+            } else {
+                abToggleBtn.innerHTML = '<span class="material-icons">hourglass_empty</span>ABリピート: オフ';
+                abToggleBtn.classList.remove('active');
+            }
+        });
 
         const randomBtn = document.getElementById('random-btn');
         randomBtn.addEventListener('click', () => {
